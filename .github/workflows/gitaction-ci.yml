@@ -18,11 +18,12 @@ jobs:
       - name: Create ECR repository
         env: 
           AWS_ECR: ${{ secrets.AWS_ECR }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           echo $AWS_ECR
           aws ecr create-repository --repository-name $AWS_ECR \
           --image-scanning-configuration scanOnPush=true \
-          --region $AWS_REGION|| echo "Repository already exists"
+          --region $AWS_REGION || echo "Repository already exists"
 
       - name: Log in to Amazon ECR
         id: ecr-login
