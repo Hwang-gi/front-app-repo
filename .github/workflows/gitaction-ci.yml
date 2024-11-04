@@ -69,7 +69,7 @@ jobs:
                 echo "Building and pushing image for service: $app"
                 
                 # 리포지토리 이름
-                REPOSITORY_NAME="gitecr"  # 여기서 올바른 리포지토리 이름 입력
+                REPOSITORY_NAME="${AWS_ECR}"  # 올바른 환경 변수 참조
                 # 이미지 태그
                 IMAGE_TAG="$service-$app:${{ env.VERSION }}"
                 # 전체 이미지 이름
@@ -79,7 +79,7 @@ jobs:
                 echo "Repository Name: $REPOSITORY_NAME"
                 echo "Image Tag: $IMAGE_TAG"
                 echo "Image Name: $IMAGE_NAME"
-    
+      
                 # Docker 이미지 빌드
                 docker build -t "$IMAGE_NAME" .
                 
