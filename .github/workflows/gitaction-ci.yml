@@ -82,6 +82,8 @@ jobs:
       
                 # Docker 이미지 빌드
                 docker build -t "$IMAGE_NAME" .
+
+                docker builder prune -f 
                 
                 # Docker 이미지 푸시
                 docker push "$IMAGE_NAME"
