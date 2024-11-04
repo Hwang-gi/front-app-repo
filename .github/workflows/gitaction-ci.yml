@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  Log-In-To-AWS-ECR:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,23 +32,33 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
 
 
-  push-images:
+  Build-and-Push-Images:
     runs-on: ubuntu-latest
-    needs: build  # Ensure this job runs after the build job
+    needs: Log-In-To-AWS-ECR
 
     steps:
-      - name: Build and push NGINX images
-        run: |
-          for service in index main signup login order reservation reservationinfo; do
-            docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/nginx/$service/Dockerfile ./front-app-repo/eks-app/nginx/$service:latest
-            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
-          done
+    - name: Build and push NGINX images
+      run: |
+        for service in index main signup login order reservation reservationinfo; do
+          # Docker 이미지를 빌드
+          docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/nginx/$service/Dockerfile ./front-app-repo/eks-app/nginx/$service
+          
+          # 이미지를 ECR에 태그
+          docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+          
+          # 이미지를 ECR에 푸시
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+        done
 
-      - name: Build and push Tomcat images
-        run: |
-          for service in index main signup login order reservation reservationinfo; do
-            docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/tomcat/$service/Dockerfile ./front-app-repo/eks-app/tomcat/$service:latest
-            docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
-          done
+    - name: Build and push NGINX images
+      run: |
+        for service in index main signup login order reservation reservationinfo; do
+          # Docker 이미지를 빌드
+          docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/Tomcat/$service/Dockerfile ./front-app-repo/eks-app/Tomcat/$service
+          
+          # 이미지를 ECR에 태그
+          docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+          
+          # 이미지를 ECR에 푸시
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+        done
