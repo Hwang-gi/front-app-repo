@@ -69,10 +69,10 @@ jobs:
           cd ./front-app-repo/nginx
           for service in index main login order reservation reservationinfo signup; do
             # Build Docker image
-            docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nginx-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
+            docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # Push the image to ECR
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/nginx-$service:${{ env.VERSION }}
+            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
       - name: Build and push Tomcat images
@@ -82,8 +82,8 @@ jobs:
           cd ./front-app-repo/Tomcat
           for service in index main login order reservationinfo signup; do
             # Build Docker image
-            docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/tomcat-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
+            docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # Push the image to ECR
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/tomcat-$service:${{ env.VERSION }}
+            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
           done
