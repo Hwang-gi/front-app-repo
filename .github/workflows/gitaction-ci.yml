@@ -44,7 +44,10 @@ jobs:
           VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Print current directory contents
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: 디렉토리 내용 확인
         run: ls -R
 
       - name: Build and push nginx images
