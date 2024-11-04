@@ -44,6 +44,9 @@ jobs:
           VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Print current directory contents
+        run: ls -R
+
       - name: Build and push nginx images
         env:
           VERSION: ${{ env.VERSION }}
