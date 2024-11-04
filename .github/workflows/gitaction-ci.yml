@@ -22,7 +22,7 @@ jobs:
           echo $AWS_ECR
           aws ecr create-repository --repository-name $AWS_ECR \
           --image-scanning-configuration scanOnPush=true \
-          --region ${AWS_REGION}|| echo "Repository already exists"
+          --region $AWS_REGION|| echo "Repository already exists"
 
       - name: Log in to Amazon ECR
         id: ecr-login
