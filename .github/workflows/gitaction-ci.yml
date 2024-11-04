@@ -82,10 +82,10 @@ jobs:
             docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # Tag the image for ECR
-            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
             
             # Push the image to ECR
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+            docker push ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
       - name: Build and push Tomcat images
@@ -98,8 +98,8 @@ jobs:
             docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # Tag the image for ECR
-            docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+            docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
             
             # Push the image to ECR
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+            docker push ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
           done
