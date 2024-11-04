@@ -21,11 +21,9 @@ jobs:
 
       - name: Create ECR repository
         run: |
-          if aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} --image-scanning-configuration scanOnPush=true --region ${{ secrets.AWS_REGION }}; then
-            echo "Repository created successfully."
-          else
-            echo "Repository already exists, skipping creation."
-          fi
+          aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
+            --image-scanning-configuration scanOnPush=true \
+            --region ${{ secrets.AWS_REGION }} || echo "Repository already exists, skipping creation."
 
   Build-and-Push-Images:
     runs-on: ubuntu-latest
@@ -58,46 +56,25 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and push Nginx images
-        env:
-          VERSION: ${{ env.VERSION }}
+      - name: Build and push images
         run: |
-          cd ./front-app-repo/nginx
-          for service in index main login order reservation reservationinfo signup; do
-            if [ -d "$service" ]; then
-              cd "$service"
-              echo "Building and pushing image for service: $service"
+          for service in nginx tomcat; do
+            cd "./front-app-repo/$service"
+            for app in index main login order reservation reservationinfo signup; do
+              if [ -d "$app" ]; then
+                cd "$app"
+                echo "Building and pushing image for service: $app"
 
-              # Build and push Docker image
-              docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} .
+                # Build and push Docker image
+                docker build -t "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/$service-$app:${{ env.VERSION }}" .
 
-              # Push the image
-              docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+                # Push the image
+                docker push "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/$service-$app:${{ env.VERSION }}"
 
-              cd ..
-            else
-              echo "Directory $service does not exist"
-            fi
-          done
-
-      - name: Build and push Tomcat images
-        env:
-          VERSION: ${{ env.VERSION }}
-        run: |
-          cd ./front-app-repo/Tomcat
-          for service in index main login order reservation reservationinfo signup; do
-            if [ -d "$service" ]; then
-              cd "$service"
-              echo "Building and pushing image for service: $service"
-
-              # Build and push Docker image
-              docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} .
-
-              # Push the image
-              docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
-
-              cd ..
-            else
-              echo "Directory $service does not exist"
-            fi
+                cd ..
+              else
+                echo "Directory $app does not exist"
+              fi
+            done
+            cd ../../
           done
