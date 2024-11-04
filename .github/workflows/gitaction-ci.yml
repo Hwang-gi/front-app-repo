@@ -40,15 +40,15 @@ jobs:
       - name: Build and push NGINX images
         run: |
           for service in index main signup login order reservation reservationinfo; do
-            docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/nginx/$service/Dockerfile ./k8s-manifest-repo-main/eks-app/nginx/$service
-            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+            docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/nginx/$service/Dockerfile ./front-app-repo/eks-app/nginx/$service:latest
+            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
       - name: Build and push Tomcat images
         run: |
           for service in index main signup login order reservation reservationinfo; do
-            docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/tomcat/$service/Dockerfile ./k8s-manifest-repo-main/eks-app/tomcat/$service
-            docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+            docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/tomcat/$service/Dockerfile ./front-app-repo/eks-app/tomcat/$service:latest
+            docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
           done
