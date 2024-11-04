@@ -83,6 +83,8 @@ jobs:
             
             # Push the image to ECR
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
+
+            cd ..
           done
 
       - name: Build and push Tomcat images
@@ -98,4 +100,6 @@ jobs:
             
             # Push the image to ECR
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
+
+            cd ..
           done
