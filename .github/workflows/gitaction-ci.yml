@@ -26,9 +26,13 @@ jobs:
         run: |
           echo "ECR Name: ${{ secrets.AWS_ECR }}"
           echo "Region: ${{ secrets.AWS_REGION }}"
-          aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
-          --image-scanning-configuration scanOnPush=true \
-          --region ${{ secrets.AWS_REGION }} || echo "Repository already exists"
+          if aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
+             --image-scanning-configuration scanOnPush=true \
+             --region ${{ secrets.AWS_REGION }}; then
+            echo "Repository created successfully."
+          else
+            echo "Repository already exists, skipping creation."
+          fi
 
   Build-and-Push-Images:
     runs-on: ubuntu-latest
