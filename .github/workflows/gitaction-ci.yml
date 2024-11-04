@@ -27,75 +27,86 @@ jobs:
             echo "Repository already exists, skipping creation."
           fi
 
-      - name: Check Docker version
+  Build-and-Push-Images:
+    runs-on: ubuntu-latest
+    needs: Create-And-Log-In-AWS-ECR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up environment variables
         run: |
-          docker --version
-      
-  # Build-and-Push-Images:
-  #   runs-on: ubuntu-latest
-  #   needs: Create-And-Log-In-AWS-ECR
+          echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "AWS_ECR=${{ secrets.AWS_ECR }}" >> $GITHUB_ENV
+          echo "VERSION=v1.0" >> $GITHUB_ENV
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+      - name: Increment version
+        id: increment_version
+        run: |
+          VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-  #     - name: Set up AWS CLI
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
 
-  #     - name: Set up environment variables
-  #       run: |
-  #         echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
-  #         echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
-  #         echo "AWS_ECR=${{ secrets.AWS_ECR }}" >> $GITHUB_ENV
-  #         echo "VERSION=v1.0" >> $GITHUB_ENV
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install -y docker-ce=5:20.10.3~3-0~ubuntu-focal
 
-  #     - name: Increment version
-  #       id: increment_version
-  #       run: |
-  #         VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
-  #         echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Build and push Nginx images
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          cd ./front-app-repo/nginx
+          for service in index main login order reservation reservationinfo signup; do
+            if [ -d "$service" ]; then
+              cd "$service"
+              echo "Building and pushing image for service: $service"
 
-  #     - name: Login to Amazon ECR
-  #       uses: aws-actions/amazon-ecr-login@v1
+              # Build and push Docker image
+              docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} .
 
-  #     - name: Build and push Nginx images
-  #       env:
-  #         VERSION: ${{ env.VERSION }}
-  #       run: |
-  #         cd ./front-app-repo/nginx
-  #         for service in index main login order reservation reservationinfo signup; do
-  #           if [ -d "$service" ]; then
-  #             cd "$service"
-  #             echo "Building and pushing image for service: $service"
+              # Push the image
+              docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
 
-  #             # Build and push Docker image with Buildx
-  #             docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} .
+              cd ..
+            else
+              echo "Directory $service does not exist"
+            fi
+          done
 
-  #             cd ..
-  #           else
-  #             echo "Directory $service does not exist"
-  #           fi
-  #         done
+      - name: Build and push Tomcat images
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          cd ./front-app-repo/Tomcat
+          for service in index main login order reservation reservationinfo signup; do
+            if [ -d "$service" ]; then
+              cd "$service"
+              echo "Building and pushing image for service: $service"
 
-  #     - name: Build and push Tomcat images
-  #       env:
-  #         VERSION: ${{ env.VERSION }}
-  #       run: |
-  #         cd ./front-app-repo/Tomcat
-  #         for service in index main login order reservation reservationinfo signup; do
-  #           if [ -d "$service" ]; then
-  #             cd "$service"
-  #             echo "Building and pushing image for service: $service"
+              # Build and push Docker image
+              docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} .
 
-  #             # Build and push Docker image with Buildx
-  #             docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} .
+              # Push the image
+              docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
 
-  #             cd ..
-  #           else
-  #             echo "Directory $service does not exist"
-  #           fi
-  #         done
+              cd ..
+            else
+              echo "Directory $service does not exist"
+            fi
+          done
