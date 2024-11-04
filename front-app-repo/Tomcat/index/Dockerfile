@@ -34,7 +34,7 @@ RUN mkdir $CATALINA_HOME/webapps/ROOT
 
 # MariaDB 정보 저장
 COPY context.xml $CATALINA_HOME/conf
-COPY font/ img/ $CATALINA_HOME/webapps/ROOT
+COPY font/ img/ *.jsp $CATALINA_HOME/webapps/ROOT
 
 # /opt/tomcat/bin/catalina.sh 파일에 실행 권한 추가
 RUN chmod +x $CATALINA_HOME/bin/catalina.sh
