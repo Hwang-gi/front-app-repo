@@ -58,7 +58,7 @@ jobs:
 
       - name: Build and push images
         run: |
-          for service in nginx tomcat; do
+          for service in nginx Tomcat; do
             cd "./front-app-repo/$service"
             for app in index main login order reservation reservationinfo signup; do
               if [ -d "$app" ]; then
