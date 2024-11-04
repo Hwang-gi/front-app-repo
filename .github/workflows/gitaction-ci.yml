@@ -60,8 +60,13 @@ jobs:
 
       - name: Set up Docker
         run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sh get-docker.sh
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          # Install Docker 19.02.0
+          sudo apt-get install -y docker-ce=5:19.02.0~3-0~ubuntu-$(lsb_release -cs) docker-ce-cli=5:19.02.0~3-0~ubuntu-$(lsb_release -cs) containerd.io
 
       - name: Build and push Nginx images
         env:
