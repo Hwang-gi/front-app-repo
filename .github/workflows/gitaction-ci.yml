@@ -21,11 +21,7 @@ jobs:
 
       - name: Create ECR repository
         run: |
-          echo "ECR Name: ${{ secrets.AWS_ECR }}"
-          echo "Region: ${{ secrets.AWS_REGION }}"
-          if aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
-             --image-scanning-configuration scanOnPush=true \
-             --region ${{ secrets.AWS_REGION }}; then
+          if aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} --image-scanning-configuration scanOnPush=true --region ${{ secrets.AWS_REGION }}; then
             echo "Repository created successfully."
           else
             echo "Repository already exists, skipping creation."
