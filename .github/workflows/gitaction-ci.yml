@@ -17,10 +17,12 @@ jobs:
 
       - name: Create ECR repository
         env: 
-          AWS_ECR: gitecr
+          AWS_ECR: ${{ secrets.AWS_ECR }}
         run: |
           echo $AWS_ECR
-          aws ecr create-repository --repository-name $AWS_ECR || echo "Repository already exists"
+          aws ecr create-repository --repository-name $AWS_ECR \
+          --image-scanning-configuration scanOnPush=true \
+          --region ${AWS_REGION}|| echo "Repository already exists"
 
       - name: Log in to Amazon ECR
         id: ecr-login
@@ -50,7 +52,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      - name: 디렉토리 내용 확인
+      - name: Check In Advance
         run: ls -R
 
       - name: Build and push nginx images
