@@ -72,6 +72,14 @@ jobs:
                 # 전체 이미지 이름
                 IMAGE_NAME="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPOSITORY_NAME/$IMAGE_TAG"
 
+          # Docker 이미지 빌드
+          docker build -t "$IMAGE_NAME" .
+
+          # ECR에 로그인
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+
+          # Docker 이미지 푸시
+          docker push "$IMAGE_NAME"
                 cd ..
               else
                 echo "Directory $app does not exist"
