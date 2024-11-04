@@ -53,7 +53,11 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up environment variables
-        run: echo "VERSION=v1.0" >> $GITHUB_ENV
+        run: |
+          echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "AWS_ECR=${{ secrets.AWS_ECR }}" >> $GITHUB_ENV
+          echo "VERSION=v1.0" >> $GITHUB_ENV
 
       - name: Increment version
         id: increment_version
@@ -79,7 +83,7 @@ jobs:
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
-      - name: Build and push Nginx images
+      - name: Build and push Tomcat images
         env:
           VERSION: ${{ env.VERSION }}
         run: |
