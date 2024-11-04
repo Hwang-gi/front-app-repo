@@ -43,6 +43,7 @@ jobs:
           # 현재 버전에서 숫자를 증가시키는 스크립트
           VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Build and push nginx images
         env:
           VERSION: ${{ env.VERSION }}
