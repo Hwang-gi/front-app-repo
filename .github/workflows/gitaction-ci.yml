@@ -16,8 +16,10 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Create ECR repository
+        env: 
+          AWS_ECR: ${{ secrets.AWS_ECR }}  
         run: |
-          aws ecr create-repository --repository-name gitecr || echo "Repository already exists"
+          aws ecr create-repository --repository-name $AWS_ECR || echo "Repository already exists"
 
       - name: Log in to Amazon ECR
         id: ecr-login
