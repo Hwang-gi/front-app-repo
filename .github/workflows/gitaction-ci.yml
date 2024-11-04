@@ -41,7 +41,7 @@ jobs:
         run: |
           for service in index main signup login order reservation reservationinfo; do
             docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/eks-app/nginx/$service/Dockerfile ./k8s-manifest-repo-main/eks-app/nginx/$service
-            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:latest
+            docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
