@@ -79,12 +79,12 @@ jobs:
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
           done
 
-      - name: Build and push Tomcat images
+      - name: Build and push Nginx images
         env:
           VERSION: ${{ env.VERSION }}
         run: |
           cd ./front-app-repo/Tomcat
-          for service in index main login order reservationinfo signup; do
+          for service in index main login order reservation reservationinfo signup; do
             # Build Docker image
             docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
