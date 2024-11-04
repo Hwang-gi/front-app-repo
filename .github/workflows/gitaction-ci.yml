@@ -65,15 +65,12 @@ jobs:
                 cd "$app"
                 echo "Building and pushing image for service: $app"
 
-                # Build and push Docker image
-                IMAGE_NAME="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/$service-$app:${{ env.VERSION }}"
-                echo "Image Name: '$IMAGE_NAME'"  # 디버깅을 위한 출력
-
-                # Docker build
-                docker build -t "$IMAGE_NAME" .
-
-                # Docker push
-                docker push "$IMAGE_NAME"
+                # 리포지토리 이름
+                REPOSITORY_NAME="${{ secrets.AWS_ECR }}"
+                # 이미지 태그
+                IMAGE_TAG="$service-$app:${{ env.VERSION }}"
+                # 전체 이미지 이름
+                IMAGE_NAME="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPOSITORY_NAME/$IMAGE_TAG"
 
                 cd ..
               else
