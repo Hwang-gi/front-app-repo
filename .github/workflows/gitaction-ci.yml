@@ -75,6 +75,11 @@ jobs:
                 # 전체 이미지 이름
                 IMAGE_NAME="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG"
                 
+                # 변수 출력
+                echo "Repository Name: $REPOSITORY_NAME"
+                echo "Image Tag: $IMAGE_TAG"
+                echo "Image Name: $IMAGE_NAME"
+    
                 # Docker 이미지 빌드
                 docker build -t "$IMAGE_NAME" .
                 
