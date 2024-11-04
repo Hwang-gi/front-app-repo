@@ -76,11 +76,11 @@ jobs:
         run: |
           cd ./front-app-repo/nginx
           pwd
-      #     for service in index main login order reservation reservationinfo signup; do
-      #       if [ -d "$service" ]; then
-      #         cd "$service"
-              
-      #         # Build Docker image with latest tag
+          for service in index main login order reservation reservationinfo signup; do
+            if [ -d "$service" ]; then
+              cd "$service"
+              pwd
+              # Build Docker image with latest tag
       #         docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:latest .
               
       #         # Push the image with version tag
