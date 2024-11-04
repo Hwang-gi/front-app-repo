@@ -58,6 +58,10 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Disable BuildKit
+        run: |
+          export DOCKER_BUILDKIT=0
+
       - name: Build and push Nginx images
         env:
           VERSION: ${{ env.VERSION }}
