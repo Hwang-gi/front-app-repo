@@ -48,9 +48,10 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          for service in index main signup login order reservation reservationinfo; do
+          cd ./front-app-repo/nginx
+          for service in index main login login main order reservation reservationinfo signup; do
             # Docker 이미지를 빌드
-            docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./front-app-repo/nginx/$service/Dockerfile ./front-app-repo/nginx/$service
+            docker build -t ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # 이미지를 ECR에 태그
             docker tag ${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/nginx-$service:${{ env.VERSION }}
@@ -63,9 +64,10 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          for service in index main signup login order reservation reservationinfo; do
+          cd ./front-app-repo/Tomcat
+          for service in index main login login main order reservationinfo signup; do
             # Docker 이미지를 빌드
-            docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./front-app-repo/Tomcat/$service/Dockerfile ./front-app-repo/Tomcat/$service
+            docker build -t ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} -f ./$service/Dockerfile ./$service
             
             # 이미지를 ECR에 태그
             docker tag ${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}/tomcat-$service:${{ env.VERSION }}
