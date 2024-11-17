@@ -1,0 +1,17 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'java'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-tomcat'  // Tomcat 포함
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'  // JSP 처리기
+    
+    implementation project(':modules:api')
+}
+
+bootJar {
+    baseName = 'web'  // 생성되는 JAR 파일의 이름을 'web.jar'로 설정
+    version = '1.0.2'
+}

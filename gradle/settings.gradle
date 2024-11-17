@@ -1,0 +1,7 @@
+rootProject.name = 'spring-boot-demo'
+
+include 'modules:app', 'modules:api', 'modules:web'
+
+project(':app').projectDir = file('modules/app')
+project(':api').projectDir = file('modules/api')
+project(':web').projectDir = file('modules/web')
