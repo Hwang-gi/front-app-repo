@@ -30,11 +30,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     # 4. Dockerfile 위치로 이동: front-end 디렉토리로 이동
-    - name: Change to front-end directory
-      run: cd front-end
+    - name: Change to gradle directory
+      run: cd gradle
 
     # 5. Docker 이미지 빌드
-    - name: Build Docker image for front-end
+    - name: Build Docker image for gradle
       run: |
         IMAGE_TAG="gradle-${{ env.VERSION }}"
         REPOSITORY_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}"
