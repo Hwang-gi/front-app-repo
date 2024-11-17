@@ -36,7 +36,7 @@ jobs:
     # 5. Docker 이미지 빌드
     - name: Build Docker image for gradle
       run: |
-        IMAGE_TAG="gradle-${{ env.VERSION }}"
+        IMAGE_TAG="gradle${{ env.VERSION }}"
         REPOSITORY_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}"
 
         echo "Building Docker image for front-end..."
