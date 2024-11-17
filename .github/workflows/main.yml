@@ -1,40 +1,56 @@
-# name: Docker Image Build and Push to AWS ECR
+name: Build and Push Docker Image for Front-End
 
-# on:
-#   push:
-#     branches:
-#       - main  # 'main' 브랜치에 푸시될 때 워크플로우가 실행됩니다.
-#   pull_request:
-#     branches:
-#       - main  # PR이 main 브랜치로 생성될 때 워크플로우가 실행됩니다.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest  # GitHub Actions에서 제공하는 Ubuntu 최신 버전에서 실행
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       # 1. 코드 체크아웃
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+    steps:
+    # 1. 체크아웃: 리포지토리의 코드 체크아웃
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-#       # 2. AWS 자격 증명 설정
-#       - name: Set up AWS CLI
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # GitHub Secrets에 저장된 AWS Access Key
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # GitHub Secrets에 저장된 AWS Secret Key
-#           aws-region: ${{ secrets.AWS_REGION }}  # AWS 지역 (예: us-west-2)
+    # 2. AWS Credentials 설정: ECR에 로그인하기 위해 AWS 자격증명 설정
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-#       # 3. AWS ECR 로그인
-#       - name: Login to Amazon ECR
-#         uses: aws-actions/amazon-ecr-login@v1
+    # 3. Docker 로그인: Amazon ECR에 로그인
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
 
-#       # 4. Docker 이미지 빌드
-#       - name: Build Docker image
-#         run: |
-#           docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY_NAME }}:latest .
+    # 4. Dockerfile 위치로 이동: front-end 디렉토리로 이동
+    - name: Change to front-end directory
+      run: cd front-end
 
-#       # 5. Docker 이미지 푸시
-#       - name: Push Docker image to AWS ECR
-#         run: |
-#           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY_NAME }}:latest
+    # 5. Docker 이미지 빌드
+    - name: Build Docker image for front-end
+      run: |
+        IMAGE_TAG="gradle-${{ env.VERSION }}"
+        REPOSITORY_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR }}"
+
+        echo "Building Docker image for front-end..."
+        docker build -t $IMAGE_TAG .
+
+        # ECR에 이미지를 푸시하기 위한 태그 설정
+        docker tag $IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+
+    # 6. Docker 이미지 푸시: ECR에 Docker 이미지 푸시
+    - name: Push Docker image to ECR
+      run: |
+        docker push $REPOSITORY_URI:$IMAGE_TAG
+
+    # 7. Docker 이미지 빌드 후 클린업
+    - name: Docker cleanup
+      run: |
+        docker builder prune -f
