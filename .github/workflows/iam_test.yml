@@ -19,30 +19,31 @@ jobs:
 
       - name: Create IAM Policy from JSON file
         run: |
-          POLICY_FILE="./iam/policy/iam_eks_policy.json"
+          POLICY_FILE="iam/policy/iam_eks_policy.json"
           POLICY_NAME="iam_eks_policy"
-          echo "Creating IAM Policy from $POLICY_NAME"
-          aws iam create-policy \
-            --policy-name $POLICY_NAME \
-            --policy-document file://$POLICY_FILE
+          pwd
+      #     echo "Creating IAM Policy from $POLICY_NAME"
+      #     aws iam create-policy \
+      #       --policy-name $POLICY_NAME \
+      #       --policy-document file://$POLICY_FILE
 
-      - name: List IAM role JSON files
-        run: |
-          echo "Listing IAM role JSON files in './iam/role/*.json'"
-          ls ./iam/role/*.json
+      # - name: List IAM role JSON files
+      #   run: |
+      #     echo "Listing IAM role JSON files in './iam/role/*.json'"
+      #     ls iam/role/*.json
 
-      - name: Create IAM Role from JSON file
-        run: |
-          ROLE_FILE="./iam/role/iam_eks_role.json"
-          ROLE_NAME="iam_eks_role"
-          echo "Creating IAM Role from $ROLE_NAME"
-          aws iam create-role \
-            --role-name $ROLE_NAME \
-            --assume-role-policy-document file://$ROLE_FILE
-          echo "IAM Role $ROLE_NAME created successfully!"
+      # - name: Create IAM Role from JSON file
+      #   run: |
+      #     ROLE_FILE="./iam/role/iam_eks_role.json"
+      #     ROLE_NAME="iam_eks_role"
+      #     echo "Creating IAM Role from $ROLE_NAME"
+      #     aws iam create-role \
+      #       --role-name $ROLE_NAME \
+      #       --assume-role-policy-document file://$ROLE_FILE
+      #     echo "IAM Role $ROLE_NAME created successfully!"
 
-      - name: Verify IAM Role
-        run: |
-          ROLE_NAME="iam_eks_role"
-          echo "Verifying IAM Role: $ROLE_NAME"
-          aws iam get-role --role-name $ROLE_NAME
+      # - name: Verify IAM Role
+      #   run: |
+      #     ROLE_NAME="iam_eks_role"
+      #     echo "Verifying IAM Role: $ROLE_NAME"
+      #     aws iam get-role --role-name $ROLE_NAME
