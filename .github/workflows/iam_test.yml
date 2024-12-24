@@ -1,0 +1,59 @@
+name: IAM Example
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+  setting_aws_credentials:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if OIDC Provider exists and create if not
+        run: |
+          OIDC_PROVIDER_URL="https://example.com"
+          OIDC_PROVIDER_ARN="arn:aws:iam::412381775968:oidc-provider/example.com"
+          
+          EXISTING_PROVIDER=$(aws iam list-open-id-connect-providers --query "OpenIDConnectProviderList" --output text | grep "$OIDC_PROVIDER_ARN")
+          
+          if [ -z "$EXISTING_PROVIDER" ]; then
+            echo "OIDC Provider does not exist. Creating new provider..."
+            aws iam create-open-id-connect-provider \
+              --url "$OIDC_PROVIDER_URL" \
+              --client-id-list "my-client-id" \
+              --thumbprint-list "thumbprint-value"
+          else
+            echo "OIDC Provider already exists. Skipping creation."
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          
+      - name: List IAM role JSON files
+        run: |
+          echo "Listing IAM role JSON files in 'iam/role/*.json'"
+          ls iam/role/*.json
+
+      - name: Create IAM roles from JSON files
+        run: |
+          for role_file in iam/role/*.json; do
+            # Extract role name from the JSON file name (assuming the file is named as the role)
+            role_name=$(basename "$role_file" .json)
+            echo "Creating IAM Role from $role_name"
+            
+            # Create IAM Role using the JSON definition
+            aws iam create-role \
+              --role-name $role_name \
+              --assume-role-policy-document file://$role_file
+            
+            echo "IAM Role $role_name created successfully!"
+          done
+          
+      - name: Verify IAM roles
+        run: |
+          for role_file in iam/role/*.json; do
+            role_name=$(basename "$role_file" .json)
+            echo "Verifying IAM Role: $role_name"
+            aws iam get-role --role-name $role_name
