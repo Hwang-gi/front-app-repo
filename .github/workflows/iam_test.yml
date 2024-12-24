@@ -8,9 +8,9 @@ on:
 jobs:
   setting_aws_credentials:
     runs-on: ubuntu-latest
-    defaults: 
-      run: 
-        working-directory: iam
+    # defaults: 
+    #   run: 
+    #     working-directory: iam
 
     steps:
       - name: Set up AWS credentials
