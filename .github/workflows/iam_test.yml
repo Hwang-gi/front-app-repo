@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Set up AWS credentials
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -18,27 +17,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 2: Check if OIDC Provider exists and create if not
-      - name: Check if OIDC Provider exists and create if not
-        run: |
-          set -x
-          OIDC_PROVIDER_URL="https://token.actions.githubusercontent.com"
-          OIDC_PROVIDER_ARN="arn:aws:iam::412381775968:oidc-provider/token.actions.githubusercontent.com"
-          
-          # Check if the OIDC provider already exists
-          EXISTING_PROVIDER=$(aws iam list-open-id-connect-providers --query "OpenIDConnectProviderList" --output text | grep "$OIDC_PROVIDER_ARN")
-          
-          if [ -z "$EXISTING_PROVIDER" ]; then
-            echo "OIDC Provider does not exist. Creating new provider..."
-            aws iam create-open-id-connect-provider \
-              --url "$OIDC_PROVIDER_URL" \
-              --client-id-list "my-client-id" \
-              --thumbprint-list "thumbprint-value"
-          else
-            echo "OIDC Provider already exists. Skipping creation."
-          fi
-
-      # Step 3: Create IAM Policies from JSON files
       - name: Create IAM Policies from JSON files
         run: |
           echo "Listing IAM policy JSON files in 'iam/policy/*.json'"
@@ -55,13 +33,11 @@ jobs:
             echo "IAM Policy $policy_name created successfully!"
           done
 
-      # Step 4: List IAM role JSON files
       - name: List IAM role JSON files
         run: |
           echo "Listing IAM role JSON files in 'iam/role/*.json'"
           ls iam/role/*.json
 
-      # Step 5: Create IAM roles from JSON files
       - name: Create IAM roles from JSON files
         run: |
           for role_file in iam/role/*.json; do
@@ -77,7 +53,6 @@ jobs:
             echo "IAM Role $role_name created successfully!"
           done
 
-      # Step 6: Verify IAM roles
       - name: Verify IAM roles
         run: |
           for role_file in iam/role/*.json; do
