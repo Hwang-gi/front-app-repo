@@ -17,42 +17,33 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Create IAM Policies from JSON files
+      - name: Create IAM Policy from JSON file
         run: |
-          echo "Listing IAM policy JSON files in 'iam/policy/*.json'"
-          for policy_file in iam/policy/*.json; do
-            # Extract policy name from the JSON file name (assuming the file is named as the policy)
-            policy_name=$(basename "$policy_file" .json)
-            echo "Creating IAM Policy from $policy_name"
-
-            # Create IAM Policy using the JSON definition
-            aws iam create-policy \
-              --policy-name $policy_name \
-              --policy-document file://$policy_file
-            
-            echo "IAM Policy $policy_name created successfully!"
-          done
+          POLICY_FILE="iam/policy/iam_eks_policy.json"
+          POLICY_NAME="iam_eks_policy"
+          
+          echo "Creating IAM Policy from $POLICY_NAME"
+          aws iam create-policy \
+            --policy-name $POLICY_NAME \
+            --policy-document file://$POLICY_FILE
 
       - name: List IAM role JSON files
         run: |
           echo "Listing IAM role JSON files in 'iam/role/*.json'"
           ls iam/role/*.json
 
-      - name: Create IAM roles from JSON files
+      - name: Create IAM Role from JSON file
         run: |
-          for role_file in iam/role/*.json; do
-            # Extract role name from the JSON file name (assuming the file is named as the role)
-            role_name=$(basename "$role_file" .json)
-            echo "Creating IAM Role from $role_name"
-            
-            # Create IAM Role using the JSON definition
-            aws iam create-role \
-              --role-name $role_name \
-              --assume-role-policy-document file://$role_file
-            
-            echo "IAM Role $role_name created successfully!"
-          done
+          ROLE_FILE="iam/role/iam_eks_role.json"
+          ROLE_NAME="iam_eks_role"
+          
+          echo "Creating IAM Role from $ROLE_NAME"
+          aws iam create-role \
+            --role-name $ROLE_NAME \
+            --assume-role-policy-document file://$ROLE_FILE
 
+         echo "IAM Role $ROLE_NAME created successfully!"
+          
       - name: Verify IAM roles
         run: |
           for role_file in iam/role/*.json; do
