@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Check if OIDC Provider exists and create if not
         run: |
+          set -x
           OIDC_PROVIDER_URL="https://example.com"
           OIDC_PROVIDER_ARN="arn:aws:iam::412381775968:oidc-provider/example.com"
           
