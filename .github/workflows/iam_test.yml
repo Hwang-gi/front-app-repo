@@ -22,8 +22,8 @@ jobs:
       - name: Check if OIDC Provider exists and create if not
         run: |
           set -x
-          OIDC_PROVIDER_URL="https://example.com"
-          OIDC_PROVIDER_ARN="arn:aws:iam::412381775968:oidc-provider/example.com"
+          OIDC_PROVIDER_URL="https://token.actions.githubusercontent.com"
+          OIDC_PROVIDER_ARN="arn:aws:iam::412381775968:oidc-provider/token.actions.githubusercontent.com"
           
           # Check if the OIDC provider already exists
           EXISTING_PROVIDER=$(aws iam list-open-id-connect-providers --query "OpenIDConnectProviderList" --output text | grep "$OIDC_PROVIDER_ARN")
