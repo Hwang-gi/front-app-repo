@@ -21,7 +21,6 @@ jobs:
         run: |
           POLICY_FILE="iam/policy/iam_eks_policy.json"
           POLICY_NAME="iam_eks_policy"
-          
           echo "Creating IAM Policy from $POLICY_NAME"
           aws iam create-policy \
             --policy-name $POLICY_NAME \
@@ -36,17 +35,14 @@ jobs:
         run: |
           ROLE_FILE="iam/role/iam_eks_role.json"
           ROLE_NAME="iam_eks_role"
-          
           echo "Creating IAM Role from $ROLE_NAME"
           aws iam create-role \
             --role-name $ROLE_NAME \
             --assume-role-policy-document file://$ROLE_FILE
+          echo "IAM Role $ROLE_NAME created successfully!"
 
-         echo "IAM Role $ROLE_NAME created successfully!"
-          
-      - name: Verify IAM roles
+      - name: Verify IAM Role
         run: |
-          for role_file in iam/role/*.json; do
-            role_name=$(basename "$role_file" .json)
-            echo "Verifying IAM Role: $role_name"
-            aws iam get-role --role-name $role_name
+          ROLE_NAME="iam_eks_role"
+          echo "Verifying IAM Role: $ROLE_NAME"
+          aws iam get-role --role-name $ROLE_NAME
