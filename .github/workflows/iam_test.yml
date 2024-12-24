@@ -19,7 +19,7 @@ jobs:
 
       - name: Create IAM Policy from JSON file
         run: |
-          POLICY_FILE="iam/policy/iam_eks_policy.json"
+          POLICY_FILE="front-app-repo/iam/policy/iam_eks_policy.json"
           POLICY_NAME="iam_eks_policy"
           echo "Creating IAM Policy from $POLICY_NAME"
           aws iam create-policy \
@@ -28,12 +28,12 @@ jobs:
 
       - name: List IAM role JSON files
         run: |
-          echo "Listing IAM role JSON files in 'iam/role/*.json'"
-          ls iam/role/*.json
+          echo "Listing IAM role JSON files in 'front-app-repo/iam/role/*.json'"
+          ls front-app-repo/iam/role/*.json
 
       - name: Create IAM Role from JSON file
         run: |
-          ROLE_FILE="iam/role/iam_eks_role.json"
+          ROLE_FILE="front-app-repo/iam/role/iam_eks_role.json"
           ROLE_NAME="iam_eks_role"
           echo "Creating IAM Role from $ROLE_NAME"
           aws iam create-role \
