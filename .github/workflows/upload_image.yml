@@ -19,12 +19,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Create ECR repository
+      - name: Create Frontend ECR repository
         run: |
-          aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
+          aws ecr create-repository --repository-name ${{ secrets.AWS_FRONTEND_ECR }} \
             --image-scanning-configuration scanOnPush=true \
             --region ${{ secrets.AWS_REGION }} || echo "Repository already exists, skipping creation."
 
+      - name: Create Backend ECR repository
+        run: |
+          aws ecr create-repository --repository-name ${{ secrets.AWS_BACKEND_ECR }} \
+            --image-scanning-configuration scanOnPush=true \
+            --region ${{ secrets.AWS_REGION }} || echo "Repository already exists, skipping creation."
+            
   Build-and-Push-Images:
     runs-on: ubuntu-latest
     needs: Create-And-Log-In-AWS-ECR
