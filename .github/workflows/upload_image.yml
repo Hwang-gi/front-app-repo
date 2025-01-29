@@ -1,0 +1,104 @@
+name: EKS CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Create-And-Log-In-AWS-ECR:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create ECR repository
+        run: |
+          aws ecr create-repository --repository-name ${{ secrets.AWS_ECR }} \
+            --image-scanning-configuration scanOnPush=true \
+            --region ${{ secrets.AWS_REGION }} || echo "Repository already exists, skipping creation."
+
+  Build-and-Push-Images:
+    runs-on: ubuntu-latest
+    needs: Create-And-Log-In-AWS-ECR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up environment variables
+        run: |
+          echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "AWS_FRONTEND_ECR=${{ secrets.AWS_FRONTEND_ECR }}" >> $GITHUB_ENV
+          echo "AWS_BACKEND_ECR=${{ secrets.AWS_BACKEND_ECR }}" >> $GITHUB_ENV
+          echo "VERSION=v1.0" >> $GITHUB_ENV
+
+      - name: Increment version
+        id: increment_version
+        run: |
+          VERSION=$(echo "${{ env.VERSION }}" | awk -F. -v OFS=. '{$NF++;print}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push images
+        run: |
+          set -e  # 스크립트에서 오류 발생 시 중단
+          
+          for service in nginx Tomcat; do
+            if [ "$service" == "nginx" ]; then
+              REPOSITORY_NAME="${AWS_FRONTEND_ECR}"
+            elif [ "$service" == "Tomcat" ]; then
+              REPOSITORY_NAME="${AWS_BACKEND_ECR}"
+            fi
+
+            cd "./front-app-repo/$service" || { echo "Service directory not found"; exit 1; }
+            
+            for app in index main login order reservation reservationinfo signup; do
+              if [ -d "$app" ]; then # directory가 app일 때
+                cd "$app" || { echo "App directory not found"; exit 1; }
+                echo "Building and pushing image for service: $app"
+                
+                # 이미지 태그
+                IMAGE_TAG="${service,,}-${app,,}${{ env.VERSION }}"
+                # 전체 이미지 이름
+                IMAGE_NAME="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG"
+                
+                # 변수 출력
+                echo "Repository Name: $REPOSITORY_NAME"
+                echo "Image Tag: $IMAGE_TAG"
+                echo "Image Name: $IMAGE_NAME"
+      
+                # Docker 이미지 빌드
+                docker build -t "$IMAGE_NAME" .
+                
+                # Docker 이미지 푸시
+                docker push "$IMAGE_NAME"
+                
+                # 캐시 정리
+                docker builder prune -f
+   
+                cd .. || { echo "Failed to return to service directory"; exit 1; }
+              else
+                echo "Directory $app does not exist"
+              fi
+            done
+            
+            cd ../../ || { echo "Failed to return to main directory"; exit 1; }
+          done
